@@ -1,6 +1,7 @@
 package words;
 
 import java.util.*;
+import java.util.stream.*;
 
 public class Words {
   private final Collection<String> words;
@@ -8,57 +9,68 @@ public class Words {
   public Words(Collection<String> words) { this.words = words; }
 
   public Collection<Pair> findPairsWithNoLettersInCommon() {
-    List<Pair> result = new ArrayList<>();
-    allPairs().forEach(result::add);
-    return result;
+    return allPairs().stream()
+        .filter(Pair::haveNoLettersInCommon)
+        .collect(Collectors.toSet());
   }
 
-  private Iterable<Pair> allPairs() {
-    return () -> new Iterator<Pair>() {
-      private Iterator<String> firstIterator = words.iterator();
-      private Iterator<String> secondIterator = words.iterator();
-      private int firstIndex = -1, secondIndex = -1;
-      private String first, second;
-      private Pair next;
-
+  private Collection<Pair> allPairs() {
+    return new AbstractCollection<Pair>() {
       @Override
-      public boolean hasNext() {
-        if (next == null) next = findNext();
-        return (next != null);
+      public int size() {
+        int wordsSize = words.size();
+        return (wordsSize * (wordsSize - 1)) / 2;
       }
 
       @Override
-      public Pair next() {
-        if (next == null) next = findNext();
-        if (next == null) throw new NoSuchElementException();
-        Pair result = next;
-        next = null;
-        return result;
-      }
+      public Iterator<Pair> iterator() {
+        return new Iterator<Pair>() {
+          private Iterator<String> firstIterator = words.iterator();
+          private Iterator<String> secondIterator = words.iterator();
+          private int firstIndex = -1, secondIndex = -1;
+          private String first, second;
+          private Pair next;
 
-      private Pair findNext() {
-        if (!advanceFirst()) return null;
-        while (firstIndex >= secondIndex) {
-          if (!advanceSecond()) return null;
-          if (!advanceFirst()) return null;
-        }
-        return new Pair(first, second);
-      }
+          @Override
+          public boolean hasNext() {
+            if (next == null) next = findNext();
+            return (next != null);
+          }
 
-      private boolean advanceFirst() {
-        if (! firstIterator.hasNext()) return false;
-        first = firstIterator.next();
-        firstIndex += 1;
-        return true;
-      }
+          @Override
+          public Pair next() {
+            if (next == null) next = findNext();
+            if (next == null) throw new NoSuchElementException();
+            Pair result = next;
+            next = null;
+            return result;
+          }
 
-      private boolean advanceSecond() {
-        if (! secondIterator.hasNext()) return false;
-        second = secondIterator.next();
-        secondIndex += 1;
-        firstIterator = words.iterator();
-        firstIndex = -1;
-        return true;
+          private Pair findNext() {
+            if (!advanceFirst()) return null;
+            while (firstIndex >= secondIndex) {
+              if (!advanceSecond()) return null;
+              if (!advanceFirst()) return null;
+            }
+            return new Pair(first, second);
+          }
+
+          private boolean advanceFirst() {
+            if (! firstIterator.hasNext()) return false;
+            first = firstIterator.next();
+            firstIndex += 1;
+            return true;
+          }
+
+          private boolean advanceSecond() {
+            if (! secondIterator.hasNext()) return false;
+            second = secondIterator.next();
+            secondIndex += 1;
+            firstIterator = words.iterator();
+            firstIndex = -1;
+            return true;
+          }
+        };
       }
     };
   }
@@ -69,6 +81,15 @@ public class Words {
     public Pair(String first, String second) {
       this.first = first;
       this.second = second;
+    }
+
+    boolean haveNoLettersInCommon() {
+      for (int firstIndex = 0; firstIndex < first.length(); firstIndex += 1) {
+        for (int secondIndex = 0; secondIndex < second.length(); secondIndex += 1) {
+          if (first.charAt(firstIndex) == second.charAt(secondIndex)) return false;
+        }
+      }
+      return true;
     }
 
     @Override
