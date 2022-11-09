@@ -99,7 +99,7 @@ public class Words {
 
     @Override
     public int hashCode() {
-      return first.hashCode() * 31 + second.hashCode();
+      return first.hashCode() + second.hashCode();
     }
 
     @Override
