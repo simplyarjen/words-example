@@ -16,7 +16,6 @@ public class WordsTest {
 
   }
 
-  @Ignore("This one should work when the algorithm is implemented.")
   @Test
   public void itShouldFindPairsWithNoLettersInCommon() {
     givenWords("A", "B", "C");
@@ -25,6 +24,21 @@ public class WordsTest {
     assertThat(theResult).contains(thePair("A", "B"));
     assertThat(theResult).contains(thePair("B", "C"));
     assertThat(theResult).contains(thePair("A", "C"));
+  }
+
+  @Test
+  public void itShouldNotFindPairsWithLettersInCommon() {
+    givenWords("Monkey", "Wrench");
+    whenTheAlgorithmIsRun();
+    assertThat(theResult).isEmpty();
+  }
+
+  @Test
+  public void itShouldFindPairsOnlyOnce() {
+    givenWords("A", "A", "B");
+    whenTheAlgorithmIsRun();
+    assertThat(theResult).hasSize(1);
+    assertThat(theResult).contains(thePair("A", "B"));
   }
 
   private void givenWords(String... words) {
