@@ -35,10 +35,23 @@ public class WordsTest {
 
   @Test
   public void itShouldFindPairsOnlyOnce() {
-    givenWords("A", "A", "B");
+    givenWords("A", "B", "A");
     whenTheAlgorithmIsRun();
     assertThat(theResult).hasSize(1);
     assertThat(theResult).contains(thePair("A", "B"));
+  }
+
+  @Test
+  public void itShouldNotChokeOnReallyLongWords() {
+    givenWords(repeat(100_000, 'A'), repeat(100_000, 'B'));
+    whenTheAlgorithmIsRun();
+    assertThat(theResult).hasSize(1);
+  }
+
+  private String repeat(int times, char c) {
+    char[] chars = new char[times];
+    Arrays.fill(chars, c);
+    return new String(chars);
   }
 
   private void givenWords(String... words) {
@@ -50,6 +63,6 @@ public class WordsTest {
   }
 
   private Words.Pair thePair(String a, String b) {
-    return new Words.Pair(a, b);
+    return new Words.Pair(Words.Word.of(a), Words.Word.of(b));
   }
 }
